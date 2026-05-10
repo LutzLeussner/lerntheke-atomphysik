@@ -3628,6 +3628,21 @@ function renderLogin() {
       <input type="text" id="name-input" placeholder="z. B. Anna Müller" onkeydown="if(event.key==='Enter')login()">
       <button class="primary" onclick="login()">Loslegen →</button>
     </div>
+    <div class="card" style="border-left:4px solid var(--kiku, #5b6e2e);">
+      <h3 style="margin-top:0">📐 Erlaubte Hilfsmittel</h3>
+      <p style="margin:4px 0 8px 0;">Halte zur Bearbeitung bereit:</p>
+      <ul style="margin:0 0 0 18px; padding:0;">
+        <li><strong>Taschenrechner</strong></li>
+        <li>
+          <strong>Tafelwerk</strong> — und zwar gezielt die Seite(n) mit:
+          <ul style="margin:4px 0 0 18px;">
+            <li>den relevanten <strong>Konstanten</strong> (Lichtgeschwindigkeit c, Elementarladung e, Massen von Proton, Neutron und Elektron)</li>
+            <li>dem <strong>Periodensystem der Elemente</strong></li>
+            <li>der <strong>Nuklidkarte</strong> (Tafelwerk S. 120/121)</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   `;
   document.getElementById('name-input').focus();
 }
@@ -3703,6 +3718,21 @@ function renderDashboard() {
       <p style="font-size:13px; color:var(--grey); margin-top:8px;">
         🎲 <strong>Bei jedem Start</strong> werden die Fragen neu zufällig aus dem Pool gezogen, und auch die Reihenfolge der Antwortmöglichkeiten wird gemischt — Auswendiglernen der Klick-Reihenfolge bringt also nichts.
       </p>
+    </div>
+    <div class="card" style="border-left:4px solid var(--kiku, #5b6e2e);">
+      <h3 style="margin-top:0">📐 Erlaubte Hilfsmittel</h3>
+      <p style="margin:4px 0 8px 0;">Du darfst bei der Bearbeitung verwenden:</p>
+      <ul style="margin:0 0 0 18px; padding:0;">
+        <li><strong>Taschenrechner</strong></li>
+        <li>
+          <strong>Tafelwerk</strong> — und zwar gezielt die Seite(n) mit:
+          <ul style="margin:4px 0 0 18px;">
+            <li>den relevanten <strong>Konstanten</strong> (Lichtgeschwindigkeit c, Elementarladung e, Massen von Proton, Neutron und Elektron)</li>
+            <li>dem <strong>Periodensystem der Elemente</strong></li>
+            <li>der <strong>Nuklidkarte</strong> (Tafelwerk S. 120/121)</li>
+          </ul>
+        </li>
+      </ul>
     </div>
     ${cards}
     ${history}
