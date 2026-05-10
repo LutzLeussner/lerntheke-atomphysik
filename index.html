@@ -1,0 +1,4036 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selbsttest — Atom- und Kernphysik</title>
+<style>
+:root {
+  --kiku: #4A9B88;
+  --kiku-dark: #3A7B6E;
+  --kiku-light: #EAF5F2;
+  --dark: #1A1A1A;
+  --grey: #6B6B6B;
+  --light-grey: #F5F5F5;
+  --green: #2E7D32;
+  --green-light: #E8F5E9;
+  --red: #C62828;
+  --red-light: #FFEBEE;
+  --orange: #E89720;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Calibri', 'Segoe UI', sans-serif;
+  background: #FAFAFA;
+  color: var(--dark);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;  /* iPad: keine Auto-Vergrößerung */
+}
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* HEADER — Flexbox, kein overlap mehr */
+header {
+  background: var(--kiku);
+  color: white;
+  padding: 16px 0;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+header .header-inner {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+header .brand h1 {
+  margin: 0 0 2px 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+header .brand .subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+header .user-bar {
+  font-size: 14px;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+header .user-bar .user-name {
+  font-weight: 600;
+  background: rgba(255,255,255,0.18);
+  padding: 6px 12px;
+  border-radius: 14px;
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+header .user-bar button {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.45);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  min-height: 36px;
+  transition: background 0.15s;
+}
+header .user-bar button:hover,
+header .user-bar button:active { background: rgba(255,255,255,0.32); }
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+h2 { color: var(--kiku); margin-top: 0; font-size: 22px; }
+h3 { color: var(--dark); font-size: 18px; }
+
+/* Buttons mit min. 44px Touch-Target (Apple HIG) */
+button.primary, button.secondary {
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 600;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button.primary {
+  background: var(--kiku);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 17px;
+}
+button.primary:hover, button.primary:active { background: var(--kiku-dark); }
+button.secondary {
+  background: white;
+  color: var(--kiku);
+  border: 1.5px solid var(--kiku);
+  padding: 11px 22px;
+  font-size: 15px;
+}
+button.secondary:hover, button.secondary:active { background: var(--kiku-light); }
+
+input[type="text"], input[type="password"] {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #DDD;
+  border-radius: 8px;
+  font-size: 17px;          /* ≥ 16px verhindert Auto-Zoom auf iOS */
+  margin-bottom: 14px;
+  font-family: inherit;
+  -webkit-appearance: none;
+  min-height: 48px;
+}
+input[type="text"]:focus, input[type="password"]:focus {
+  outline: none;
+  border-color: var(--kiku);
+  box-shadow: 0 0 0 3px var(--kiku-light);
+}
+
+/* Passwort-Gate Fehlermeldung + Shake-Animation */
+.pwd-error {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--red-light);
+  color: var(--red);
+  border-left: 4px solid var(--red);
+  border-radius: 6px;
+  font-size: 14px;
+}
+@keyframes pwdShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.shake {
+  animation: pwdShake 0.4s ease-in-out;
+  border-color: var(--red) !important;
+}
+
+.test-card {
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  border-left: 4px solid var(--kiku);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.test-card:hover, .test-card:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.test-card .meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--grey);
+}
+.test-card .badge {
+  background: var(--kiku-light);
+  color: var(--kiku);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.test-card .last-result {
+  background: var(--light-grey);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* Quiz */
+.progress-bar {
+  height: 8px;
+  background: var(--light-grey);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.progress-bar .fill {
+  height: 100%;
+  background: var(--kiku);
+  transition: width 0.3s;
+}
+.question-counter {
+  font-size: 13px;
+  color: var(--grey);
+  margin-bottom: 8px;
+}
+.question {
+  font-size: 17px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+.options { display: flex; flex-direction: column; gap: 12px; }
+.option {
+  background: white;
+  border: 1.5px solid #DDD;
+  border-radius: 8px;
+  padding: 16px 18px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.option:hover:not(:disabled), .option:active:not(:disabled) {
+  border-color: var(--kiku);
+  background: var(--kiku-light);
+}
+.option:disabled { cursor: not-allowed; }
+.option .letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--light-grey);
+  color: var(--grey);
+  font-weight: 700;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.option .text { flex: 1; }
+.option.correct {
+  background: var(--green-light);
+  border-color: var(--green);
+  color: var(--green);
+  font-weight: 500;
+}
+.option.correct .letter {
+  background: var(--green);
+  color: white;
+}
+.option.wrong {
+  background: var(--red-light);
+  border-color: var(--red);
+  color: var(--red);
+}
+.option.wrong .letter {
+  background: var(--red);
+  color: white;
+}
+.option.disabled { opacity: 0.55; }
+.feedback {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.feedback.correct { background: var(--green-light); color: var(--green); border-left: 4px solid var(--green); }
+.feedback.wrong { background: var(--red-light); color: var(--red); border-left: 4px solid var(--red); }
+.next-btn {
+  margin-top: 16px;
+  width: 100%;
+}
+
+/* Result */
+.result-grade {
+  font-size: 64px;
+  font-weight: 700;
+  text-align: center;
+  margin: 16px 0;
+  color: var(--kiku);
+}
+.result-percent {
+  text-align: center;
+  font-size: 22px;
+  color: var(--grey);
+  margin-bottom: 8px;
+}
+.result-points {
+  text-align: center;
+  font-size: 14px;
+  color: var(--grey);
+  margin-bottom: 24px;
+}
+.grade-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+.grade-table th, .grade-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #EEE;
+  font-size: 14px;
+}
+.grade-table th { background: var(--light-grey); font-weight: 600; }
+.grade-table tr.current {
+  background: var(--kiku-light);
+  font-weight: 600;
+  color: var(--kiku);
+}
+
+/* History */
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #EEE;
+  font-size: 14px;
+}
+.history-row:last-child { border: 0; }
+.history-grade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--kiku);
+  color: white;
+  font-weight: 700;
+}
+
+/* iPad — Touch-Optimierungen, etwas mehr Großzügigkeit */
+@media (max-width: 1024px) {
+  .container, header .header-inner { padding-left: 18px; padding-right: 18px; }
+  .question { font-size: 18px; }
+  .option { padding: 18px 20px; min-height: 60px; font-size: 17px; }
+  .option .letter { width: 34px; height: 34px; font-size: 16px; }
+  button.primary { font-size: 17px; min-height: 52px; padding: 14px 24px; }
+  button.secondary { font-size: 16px; min-height: 48px; }
+}
+
+/* Smartphone — Header stapelt vertikal */
+@media (max-width: 600px) {
+  header { padding: 12px 0; margin-bottom: 16px; }
+  header .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  header .brand h1 { font-size: 19px; }
+  header .brand .subtitle { font-size: 12px; }
+  header .user-bar {
+    width: 100%;
+    justify-content: flex-end;
+    font-size: 13px;
+  }
+  header .user-bar .user-name { padding: 4px 10px; font-size: 13px; }
+  .container { padding: 16px 14px; }
+  .card { padding: 18px; }
+  h2 { font-size: 19px; }
+  h3 { font-size: 16px; }
+  .question { font-size: 16px; }
+  .option { padding: 14px 16px; min-height: 52px; font-size: 15px; }
+  .result-grade { font-size: 56px; }
+  .result-percent { font-size: 18px; }
+  .test-card .meta { flex-wrap: wrap; row-gap: 6px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <h1>📚 Selbsttest — Atom- und Kernphysik</h1>
+      <div class="subtitle">Klasse 10 / Einführungsphase Physik</div>
+    </div>
+    <div class="user-bar" id="user-bar"></div>
+  </div>
+</header>
+
+<div class="container">
+  <div id="app"></div>
+</div>
+
+<script>
+const TESTS = {
+  "block1": {
+    "title": "Block 1 — Bausteine der Materie",
+    "subtitle": "Atombau, Isotope, Kernkräfte, Massendefekt",
+    "questions": [
+      {
+        "q": "Wie nennt man die kleinsten Teilchen eines chemischen Elements?",
+        "options": [
+          "Moleküle",
+          "Atome",
+          "Protonen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Wasserstoffatome aneinandergereiht ergeben etwa 1 mm?",
+        "options": [
+          "etwa 1 000",
+          "etwa 10 000",
+          "etwa 10 000 000"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Woraus besteht der Kern eines Atoms?",
+        "options": [
+          "Elektronen und Neutronen",
+          "Protonen und Elektronen",
+          "Protonen und Neutronen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Teilchen bilden die Hülle des Atoms?",
+        "options": [
+          "Elektronen",
+          "Protonen",
+          "Neutronen"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Durch die Massenzahl wird angegeben, wie viele … ein Atomkern enthält.",
+        "options": [
+          "Neutronen",
+          "Protonen",
+          "Neutronen und Protonen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Die Kernladungszahl gibt die Anzahl der …",
+        "options": [
+          "Neutronen",
+          "Protonen",
+          "Protonen und Neutronen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was gilt im ungeladenen Atom für Protonen- und Elektronenzahl?",
+        "options": [
+          "Protonenzahl > Elektronenzahl",
+          "Protonenzahl < Elektronenzahl",
+          "Protonenzahl = Elektronenzahl"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was geschieht, wenn aus der Hülle eines Atoms ein Elektron entfernt wird?",
+        "options": [
+          "Das Atom wird zum positiven Ion.",
+          "Das Atom wird zum negativen Ion.",
+          "Das Atom zerfällt."
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Was geschieht, wenn ein Atom ein zusätzliches Elektron aufnimmt?",
+        "options": [
+          "Das Atom gibt dafür ein Proton ab.",
+          "Das Atom wird zum positiven Ion.",
+          "Das Atom wird zum negativen Ion."
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wodurch unterscheiden sich die Atomkerne verschiedener Elemente?",
+        "options": [
+          "Durch die Neutronenzahl",
+          "Durch die Massenzahl",
+          "Durch die Kernladungszahl"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Worin unterscheiden sich Isotope eines Elements?",
+        "options": [
+          "In der Anzahl der Neutronen",
+          "In der Anzahl der Protonen",
+          "In der Anzahl der Elektronen"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wodurch wird verhindert, dass die positiv geladenen Protonen den Atomkern auseinanderreißen?",
+        "options": [
+          "Die negativen Ladungen der Hülle wirken dagegen.",
+          "Zwischen den Nukleonen wirken starke Kernkräfte.",
+          "Die Neutronen neutralisieren die Ladungen der Protonen."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Die Reichweite der Kernkräfte …",
+        "options": [
+          "ist im Prinzip unendlich groß.",
+          "erfasst gerade noch die äußere Elektronenhülle (~10⁻¹⁰ m).",
+          "ist extrem kurz (~10⁻¹⁵ m)."
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was geschieht, wenn 2 Protonen und 2 Neutronen zu einem Heliumkern zusammengefügt werden?",
+        "options": [
+          "Der Kern fängt zur Stabilisierung Hüllelektronen ein.",
+          "Ein kleiner Teil der Nukleonenmasse wird in Energie umgewandelt und abgestrahlt.",
+          "Der Kern nimmt Energie aus der Umgebung auf."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was gibt der Massendefekt an?",
+        "options": [
+          "Energie, mit der die Nukleonen im Kern gebunden sind.",
+          "Die Masse des Atoms abzüglich der Hüllelektronen.",
+          "Die Masse der bei der Ionisation verloren gegangenen Elektronen."
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Bei welchen Nukliden ist die Bindungsenergie pro Nukleon am geringsten?",
+        "options": [
+          "Bei den leichtesten Nukliden.",
+          "Bei den schwersten Nukliden.",
+          "Bei den mittelschweren Nukliden."
+        ],
+        "correct": 0
+      },
+      {
+        "q": "In welcher Größenordnung liegt die Bindungsenergie pro Nukleon (außer bei den leichtesten)?",
+        "options": [
+          "7 eV bis 9 eV",
+          "1 MeV bis 3 MeV",
+          "7 MeV bis 9 MeV"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Durch welche Gleichung wird die Äquivalenz von Masse und Energie beschrieben?",
+        "options": [
+          "E = m · c",
+          "E = m · c²",
+          "E = m / c²"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen enthält der Kern von Eisen-56 (Z = 26)?",
+        "options": [
+          "26",
+          "30",
+          "56"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Protonen, Neutronen und Elektronen hat ein neutrales ¹⁴C-Atom?",
+        "options": [
+          "6 p, 6 n, 6 e⁻",
+          "6 p, 8 n, 6 e⁻",
+          "8 p, 6 n, 8 e⁻"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen besitzt ein Atomkern mit A = 235 und Z = 92 (U-235)?",
+        "options": [
+          "92",
+          "143",
+          "235"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Ein Atomkern hat 47 Protonen und 60 Neutronen. Wie heißt das Nuklid?",
+        "options": [
+          "⁴⁷₆₀X",
+          "¹⁰⁷₄₇Ag",
+          "⁶⁰₄₇Co"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie verhält sich die Summe der Massen von 2 Protonen + 2 Neutronen zur Masse des Heliumkerns?",
+        "options": [
+          "Sie ist größer als die Masse des He-Kerns.",
+          "Sie ist gleich der Masse des He-Kerns.",
+          "Sie ist kleiner als die Masse des He-Kerns."
+        ],
+        "correct": 0
+      },
+      {
+        "q": "1 atomare Masseneinheit u entspricht einer Energie von etwa …",
+        "options": [
+          "1,6 · 10⁻¹⁹ J",
+          "511 keV",
+          "931 MeV"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welches chemische Element hat die Ordnungszahl Z = 1?",
+        "options": [
+          "Helium",
+          "Wasserstoff",
+          "Lithium"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 6?",
+        "options": [
+          "Stickstoff",
+          "Sauerstoff",
+          "Kohlenstoff"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welches Element hat Z = 8?",
+        "options": [
+          "Stickstoff",
+          "Sauerstoff",
+          "Fluor"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 11?",
+        "options": [
+          "Magnesium",
+          "Natrium",
+          "Aluminium"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 17?",
+        "options": [
+          "Chlor",
+          "Schwefel",
+          "Argon"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welches Element hat Z = 19?",
+        "options": [
+          "Kalium",
+          "Calcium",
+          "Argon"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welches Element hat Z = 26?",
+        "options": [
+          "Nickel",
+          "Eisen",
+          "Kobalt"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 47?",
+        "options": [
+          "Cadmium",
+          "Silber",
+          "Indium"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 53?",
+        "options": [
+          "Iod",
+          "Cäsium",
+          "Xenon"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welches Element hat Z = 79?",
+        "options": [
+          "Silber",
+          "Gold",
+          "Platin"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 82?",
+        "options": [
+          "Polonium",
+          "Blei",
+          "Bismut"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Element hat Z = 92?",
+        "options": [
+          "Uran",
+          "Plutonium",
+          "Thorium"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie viele Neutronen hat ¹²₆C?",
+        "options": [
+          "6",
+          "12",
+          "18"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie viele Neutronen hat ¹³₆C?",
+        "options": [
+          "6",
+          "7",
+          "13"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ¹⁶₈O?",
+        "options": [
+          "8",
+          "16",
+          "24"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie viele Neutronen hat ¹⁸₈O?",
+        "options": [
+          "8",
+          "10",
+          "18"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ⁴⁰₁₉K?",
+        "options": [
+          "19",
+          "21",
+          "40"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ³⁵₁₇Cl?",
+        "options": [
+          "17",
+          "18",
+          "35"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ⁹₄Be?",
+        "options": [
+          "4",
+          "5",
+          "9"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ²⁰⁸₈₂Pb?",
+        "options": [
+          "82",
+          "126",
+          "208"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ¹³⁷₅₅Cs?",
+        "options": [
+          "55",
+          "82",
+          "137"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ²³⁹₉₄Pu?",
+        "options": [
+          "94",
+          "145",
+          "239"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ¹³¹₅₃I?",
+        "options": [
+          "53",
+          "78",
+          "131"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ²²⁶₈₈Ra?",
+        "options": [
+          "88",
+          "138",
+          "226"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ⁵⁹₂₇Co?",
+        "options": [
+          "27",
+          "32",
+          "59"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Neutronen hat ⁹⁰₃₈Sr?",
+        "options": [
+          "38",
+          "52",
+          "90"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was ist die Kernladungszahl Z?",
+        "options": [
+          "Anzahl der Neutronen",
+          "Anzahl der Nukleonen",
+          "Anzahl der Protonen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was ist die Massenzahl A?",
+        "options": [
+          "Anzahl der Protonen",
+          "Anzahl der Nukleonen",
+          "Anzahl der Elektronen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Zusammenhang gilt zwischen A, Z und N (Neutronenzahl)?",
+        "options": [
+          "A = Z − N",
+          "A = Z + N",
+          "A = Z · N"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Z = 6, A = 14. Welche Nukleonenzahl liegt vor?",
+        "options": [
+          "6",
+          "14",
+          "20"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Aussage ist richtig?",
+        "options": [
+          "Z bestimmt das Element, A das Isotop.",
+          "A bestimmt das Element, Z das Isotop.",
+          "A und Z bestimmen beide das Element."
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Größenordnung des Atomdurchmessers?",
+        "options": [
+          "10⁻⁶ m",
+          "10⁻¹⁰ m",
+          "10⁻¹⁴ m"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Größenordnung des Kerndurchmessers?",
+        "options": [
+          "10⁻⁶ m",
+          "10⁻¹⁰ m",
+          "10⁻¹⁴ m"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie viel kleiner ist der Kern im Vergleich zur Hülle?",
+        "options": [
+          "100-mal",
+          "1 000-mal",
+          "10 000-mal"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Im welchen Größenverhältnis steht ein Atom zu einem Stecknadelkopf (1 mm)?",
+        "options": [
+          "10⁵",
+          "10⁷",
+          "10¹⁰"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wo ist fast die gesamte Masse eines Atoms vereinigt?",
+        "options": [
+          "in der Hülle",
+          "im Kern",
+          "gleichmäßig verteilt"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Aussage über Isotope ist richtig?",
+        "options": [
+          "Sie haben gleiche Massenzahl, aber unterschiedliche Kernladungszahl.",
+          "Sie haben gleiche Kernladungszahl, aber unterschiedliche Massenzahl.",
+          "Sie haben gleiche Anzahl Elektronen, aber unterschiedliche Anzahl Protonen."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele natürliche Wasserstoffisotope gibt es?",
+        "options": [
+          "1",
+          "3",
+          "5"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Wasserstoffisotop ist radioaktiv?",
+        "options": [
+          "H-1",
+          "H-2 (Deuterium)",
+          "H-3 (Tritium)"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "D₂O ist die chemische Formel für …",
+        "options": [
+          "normales Wasser",
+          "schweres Wasser",
+          "Tritiumoxid"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Eigenschaft haben Isotope eines Elements gemeinsam?",
+        "options": [
+          "Halbwertszeit",
+          "chemisches Verhalten",
+          "Atommasse"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Isotop wird in der Archäologie zur Altersbestimmung genutzt?",
+        "options": [
+          "C-12",
+          "C-14",
+          "U-238"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Im Periodensystem gibt es derzeit etwa wie viele bekannte Nuklide?",
+        "options": [
+          "120",
+          "1 000",
+          "2 700"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie viele dieser Nuklide sind stabil?",
+        "options": [
+          "249",
+          "1 000",
+          "2 451"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Zwischen welchen Teilchen wirkt die Coulomb-Kraft im Kern?",
+        "options": [
+          "zwischen allen Nukleonen",
+          "nur zwischen Protonen",
+          "nur zwischen Neutronen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Zwischen welchen Teilchen wirkt die Kernkraft?",
+        "options": [
+          "nur zwischen Protonen",
+          "nur zwischen Neutronen",
+          "zwischen allen Nukleonen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Reichweite hat die Kernkraft?",
+        "options": [
+          "wie die Coulomb-Kraft",
+          "extrem kurz (~10⁻¹⁵ m)",
+          "unendlich"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie nimmt die Coulomb-Kraft mit der Entfernung r ab?",
+        "options": [
+          "1/r",
+          "1/r²",
+          "1/r³"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher der folgenden Kerne ist aufgrund seiner Größe sicher instabil?",
+        "options": [
+          "⁴₂He",
+          "²⁰⁸₈₂Pb",
+          "²³⁸₉₂U"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Bismut hat Z = 83. Was gilt für Elemente mit Z > 83?",
+        "options": [
+          "Sie sind alle stabil.",
+          "Sie sind in der Natur alle radioaktiv.",
+          "Es gibt sie nicht."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was beschreibt der Massendefekt Δm?",
+        "options": [
+          "die Masse, die bei der Ionisation verloren geht",
+          "die Differenz zwischen Summe der Einzelmassen und der Kernmasse",
+          "die Masse der Hüllelektronen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wohin verschwindet die Massendifferenz beim Massendefekt?",
+        "options": [
+          "Sie wird zu Wärme.",
+          "Sie wird in Bindungsenergie umgewandelt.",
+          "Sie geht verloren."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Beziehung beschreibt Masse-Energie-Äquivalenz?",
+        "options": [
+          "E = m · c",
+          "E = m · c²",
+          "E = ½ m · c²"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Wert für c (Lichtgeschwindigkeit) wird in E = m·c² verwendet?",
+        "options": [
+          "3 · 10⁵ m/s",
+          "3 · 10⁸ m/s",
+          "3 · 10¹⁰ m/s"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Warum verwendet man in der Kernphysik die Einheit MeV statt Joule?",
+        "options": [
+          "MeV ist genauer als Joule.",
+          "Joule wäre für Kernprozesse sehr unpraktische Zahlen.",
+          "MeV ist die SI-Einheit."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Etwa wie viel Energie steckt in 1 kg Masse, wenn man sie vollständig in Energie umwandelt?",
+        "options": [
+          "9 · 10⁶ J",
+          "9 · 10¹³ J",
+          "9 · 10¹⁶ J"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Woraus folgt der mittlere Bindungsenergie-Wert von ca. 8 MeV pro Nukleon?",
+        "options": [
+          "aus dem Massendefekt der Atomkerne",
+          "aus der Anzahl der Elektronen",
+          "aus der Temperatur des Kerns"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Kern ist am stärksten gebunden (höchste Bindungsenergie pro Nukleon)?",
+        "options": [
+          "¹H",
+          "⁵⁷Fe",
+          "²³⁵U"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei welcher Reaktionsart wird Energie aus leichten Kernen gewonnen?",
+        "options": [
+          "Kernspaltung",
+          "Kernfusion",
+          "α-Zerfall"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei welcher Reaktionsart wird Energie aus schweren Kernen gewonnen?",
+        "options": [
+          "Kernfusion",
+          "Kernspaltung",
+          "γ-Zerfall"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pro Nukleon liefert die Fusion D + T wie viel Energie verglichen mit der Spaltung von U-235?",
+        "options": [
+          "weniger als U-235",
+          "etwa gleich viel",
+          "deutlich mehr"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Ladung hat ein Proton?",
+        "options": [
+          "+1 Elementarladung",
+          "−1 Elementarladung",
+          "neutral"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Ladung hat ein Elektron?",
+        "options": [
+          "+1 Elementarladung",
+          "−1 Elementarladung",
+          "neutral"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Ladung hat ein Neutron?",
+        "options": [
+          "+1 Elementarladung",
+          "−1 Elementarladung",
+          "neutral"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie groß ist die Elementarladung e?",
+        "options": [
+          "1,6 · 10⁻¹⁹ C",
+          "1,6 · 10⁻¹⁶ C",
+          "9,1 · 10⁻³¹ C"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Verglichen mit einem Proton wiegt ein Elektron …",
+        "options": [
+          "etwa gleich viel",
+          "ca. 1/1836 so viel",
+          "ca. 1/100 so viel"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie heißt ein Atom, dem ein Elektron entzogen wurde?",
+        "options": [
+          "positives Ion",
+          "negatives Ion",
+          "Anion"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Was passiert mit einem Atom, das ein zusätzliches Elektron aufnimmt?",
+        "options": [
+          "es wird zum positiven Ion",
+          "es wird zum negativen Ion",
+          "der Kern verändert sich"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Elektronen hat das Cl⁻-Ion (Chlor mit Z = 17)?",
+        "options": [
+          "16",
+          "17",
+          "18"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie viele Elektronen hat das Na⁺-Ion (Natrium mit Z = 11)?",
+        "options": [
+          "10",
+          "11",
+          "12"
+        ],
+        "correct": 0
+      }
+    ],
+    "drawCount": 12
+  },
+  "block2": {
+    "title": "Block 2 — Energie aus dem Atomkern",
+    "subtitle": "Radioaktivität, Strahlungsarten, Halbwertszeit, Aktivität, Energie",
+    "questions": [
+      {
+        "q": "Wie nennt man Atome, die ohne äußere Einwirkung Strahlen aussenden?",
+        "options": [
+          "Ionisiert",
+          "Radioaktiv",
+          "Elektrisch geladen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie nennt man die Kerne radioaktiver Atome?",
+        "options": [
+          "Radionuklide",
+          "Isotope",
+          "Nuklide"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Eigenschaft der Kernstrahlen wird zur Bezeichnung „ionisierende Strahlung\" benutzt?",
+        "options": [
+          "Die Eigenschaft, dünne Materialschichten zu durchdringen.",
+          "Die Eigenschaft, Stoffe zu ionisieren.",
+          "Die Eigenschaft, durch ein Magnetfeld abgelenkt zu werden."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Woraus bestehen Alphateilchen?",
+        "options": [
+          "aus 2 Protonen",
+          "aus 2 Neutronen",
+          "aus 2 Protonen und 2 Neutronen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie groß ist die Anfangsgeschwindigkeit von α-Teilchen?",
+        "options": [
+          "etwa 1 500 km/s",
+          "etwa 15 000 m/s",
+          "etwa 15 000 km/s"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "In welche Teilchen kann ein Neutron zerfallen?",
+        "options": [
+          "in 2 Elektronen",
+          "in 1 Proton und 1 Elektron",
+          "in 2 Protonen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was sind Betateilchen?",
+        "options": [
+          "Protonen",
+          "Neutronen",
+          "Elektronen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "In welchem Bereich liegt die Austrittsgeschwindigkeit von β⁻-Teilchen?",
+        "options": [
+          "10 000 m/s bis 15 000 m/s",
+          "10 000 km/s bis 15 000 km/s",
+          "0 m/s bis fast 300 000 km/s"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie werden Gammaquanten aus dem Atomkern abgegeben?",
+        "options": [
+          "in einzelnen Energieportionen (Quanten)",
+          "als kontinuierlicher Energiestrom",
+          "als elektrische Entladung"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie groß ist die Ausbreitungsgeschwindigkeit von Gammaquanten?",
+        "options": [
+          "ungefähr 300 000 m/s",
+          "ungefähr 300 000 km/s",
+          "ungefähr 300 000 km/h"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Beim K-Einfang wird …",
+        "options": [
+          "ein Proton von der Atomhülle eingefangen.",
+          "ein Hüllelektron vom Kern eingefangen.",
+          "ein Hüllelektron von einem Nachbaratom eingefangen."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Die Halbwertszeit gibt die Zeit an, in der … der zu Beginn vorhandenen Atome zerfallen sind.",
+        "options": [
+          "die Hälfte",
+          "ein Viertel",
+          "ein Zehntel"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Zu Beginn sind 12 000 000 Atome radioaktiv. Wie viele Atome sind nach 2 Halbwertszeiten insgesamt zerfallen?",
+        "options": [
+          "6 000 000 Atome",
+          "3 000 000 Atome",
+          "9 000 000 Atome"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was wird durch die Aktivität angegeben?",
+        "options": [
+          "Anzahl der Kernumwandlungen",
+          "Anzahl der Kernumwandlungen pro Zeit",
+          "Anzahl der Kernumwandlungen pro Masse"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welcher Einheit misst man die Aktivität?",
+        "options": [
+          "Ampere (A)",
+          "Joule (J)",
+          "Becquerel (Bq)"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Ein Strahler hat eine Aktivität von 5 000 Bq. Wie viele Kernumwandlungen finden in 1 min statt?",
+        "options": [
+          "300 000",
+          "5 000",
+          "60"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "1 µg Cs-137 hat eine Aktivität von etwa 3,2·10⁶ Bq. Welche spezifische Aktivität ergibt sich, wenn dieses 1 µg in 1 t Wasser aufgelöst wird?",
+        "options": [
+          "3,2·10⁶ Bq/g",
+          "3,2·10⁶ Bq/kg",
+          "3,2 Bq/g"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Tochterkern entsteht beim α-Zerfall von ²²⁶₈₈Ra?",
+        "options": [
+          "²²²₈₆Rn",
+          "²²²₈₈Ra",
+          "²²⁶₈₆Rn"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Bei welchem Zerfall sinkt die Massenzahl um 4 und die Kernladungszahl um 2?",
+        "options": [
+          "α-Zerfall",
+          "β⁻-Zerfall",
+          "γ-Zerfall"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie verändern sich Massen- und Kernladungszahl beim β⁻-Zerfall?",
+        "options": [
+          "A bleibt, Z steigt um 1",
+          "A bleibt, Z sinkt um 1",
+          "A sinkt um 4, Z sinkt um 2"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Tochterkern entsteht beim β⁻-Zerfall von ¹⁴₆C?",
+        "options": [
+          "¹⁴₅B",
+          "¹⁴₇N",
+          "¹³₆C"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Tochterkern entsteht beim α-Zerfall von ²³⁸₉₂U?",
+        "options": [
+          "²³⁴₉₀Th",
+          "²³⁴₉₂U",
+          "²³⁸₉₀Th"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Eine Probe enthält zu Beginn 16 000 000 radioaktive Atome. Wie viele Atome sind nach 4 Halbwertszeiten noch radioaktiv?",
+        "options": [
+          "4 000 000",
+          "1 000 000",
+          "500 000"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tritium hat T₁/₂ = 12,3 a. Nach welcher Zeit ist eine Tritium-Probe auf etwa 1/8 der Anfangsmenge gefallen?",
+        "options": [
+          "24,6 a",
+          "36,9 a",
+          "98,4 a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Eine Cs-137-Probe (T₁/₂ = 30 a) hat zu Beginn eine Aktivität von 800 Bq. Wie groß ist die Aktivität nach 60 Jahren?",
+        "options": [
+          "400 Bq",
+          "200 Bq",
+          "100 Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Eine Probe zeigt 600 Kernumwandlungen in 30 Sekunden. Wie groß ist die Aktivität?",
+        "options": [
+          "10 Bq",
+          "20 Bq",
+          "60 Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei der Spaltung eines U-235-Kerns wird ungefähr welche Energie frei?",
+        "options": [
+          "ca. 2 MeV",
+          "ca. 20 MeV",
+          "ca. 200 MeV"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Bei der Fusion von Deuterium und Tritium zu Helium-4 wird ungefähr welche Energie pro Reaktion frei?",
+        "options": [
+          "ca. 1,8 MeV",
+          "ca. 17,6 MeV",
+          "ca. 176 MeV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was benötigt man, um eine physikalische Arbeit zu verrichten?",
+        "options": [
+          "Elektrische Spannung",
+          "Energie",
+          "Geschwindigkeit"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welcher Einheit misst man die Energie?",
+        "options": [
+          "Ampere (A)",
+          "Newton (N)",
+          "Joule (J)"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "In welcher Einheit misst man die Energie bei Kernreaktionen?",
+        "options": [
+          "Joule (J)",
+          "Kilowattstunden (kWh)",
+          "Elektronvolt (eV)"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was geschieht beim Verrichten einer physikalischen Arbeit?",
+        "options": [
+          "Ein Stoff wandelt sich in einen anderen um.",
+          "Die beteiligten Körper laden sich elektrisch auf.",
+          "Es wird eine Energieform in eine andere umgewandelt."
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Durch den Wirkungsgrad wird angegeben:",
+        "options": [
+          "nutzbare Energie / aufgewendete Energie",
+          "aufgewendete Energie / nutzbare Energie",
+          "nutzbare Energie · aufgewendete Energie"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Aussage über den Wirkungsgrad von Geräten und Maschinen ist richtig?",
+        "options": [
+          "Der Wirkungsgrad ist immer größer als 1.",
+          "Der Wirkungsgrad ist gleich 1.",
+          "Der Wirkungsgrad ist kleiner als 1."
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie groß ist etwa der Gesamtwirkungsgrad eines Kernkraftwerks?",
+        "options": [
+          "0,95",
+          "0,61",
+          "0,34"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Energie steht bei einem Kohlekraftwerk am Anfang der Energieumwandlungskette?",
+        "options": [
+          "Wärmeenergie",
+          "Kernenergie",
+          "Chemische Energie"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Energie steht bei einem Kernkraftwerk am Anfang der Energieumwandlungskette?",
+        "options": [
+          "Wärmeenergie",
+          "Kernenergie",
+          "Chemische Energie"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welchem Teil eines Kraftwerks wird Druckenergie in Bewegungsenergie umgewandelt?",
+        "options": [
+          "Turbine",
+          "Kondensator",
+          "Generator"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "In welchem Teil eines Kraftwerks wird Bewegungsenergie in elektrische Energie umgewandelt?",
+        "options": [
+          "Turbine",
+          "Kondensator",
+          "Generator"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "In welcher Form treten in Kohle- und Kernkraftwerken Energieverluste auf?",
+        "options": [
+          "Als elektrische Energie",
+          "Als Wärmeenergie",
+          "Als Bewegungsenergie"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welchem Zustand sind die kleinsten Teilchen eines Stoffes bei −273,15 °C?",
+        "options": [
+          "in dauernder Bewegung",
+          "in Ruhe",
+          "in innerer Umwandlung"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was geschieht mit den Teilchen eines Stoffes, wenn die Temperatur steigt?",
+        "options": [
+          "sie ziehen sich stärker an",
+          "sie verformen sich stärker",
+          "sie bewegen sich heftiger"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Die innere Energie eines Stoffes ist …",
+        "options": [
+          "die chemische Energie des Stoffes",
+          "die Energie, die in Form der Teilchenbewegung vorliegt",
+          "die Energie der Atomkerne"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie gelangt bei einem KKW die Wärme aus den Brennstäben in das Kühlmittel Wasser?",
+        "options": [
+          "Durch Wärmestrahlung",
+          "Durch Stöße zwischen den kleinsten Teilchen",
+          "Durch Gammastrahlung"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Ausgeschleuderte α-Teilchen werden an umgebenden Atomen abgebremst. Was tritt dabei ein?",
+        "options": [
+          "Die Atome werden elektrisch aufgeladen.",
+          "Die Atome zerplatzen in mehrere Bruchstücke.",
+          "Die Atome bewegen sich heftiger (Temperaturanstieg)."
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welcher Zusammenhang besteht bei α-Teilchen zwischen Geschwindigkeit und Energie?",
+        "options": [
+          "Die Energie steigt mit der Geschwindigkeit.",
+          "Die Energie sinkt mit der Geschwindigkeit.",
+          "Die Energie ist unabhängig von der Geschwindigkeit."
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie groß ist etwa die Geschwindigkeit thermischer Neutronen?",
+        "options": [
+          "2 000 m/s",
+          "2 000 m/min",
+          "2 000 km/s"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Was geschieht mit einem Atomkern, der ein α-Teilchen aussendet?",
+        "options": [
+          "Er verformt sich.",
+          "Er lädt sich elektrisch auf.",
+          "Er erfährt einen Rückstoß."
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²²²₈₆Rn?",
+        "options": [
+          "²¹⁸₈₄Po",
+          "²²²₈₄Po",
+          "²¹⁸₈₆Rn"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²¹⁸₈₄Po?",
+        "options": [
+          "²¹⁴₈₂Pb",
+          "²¹⁴₈₄Po",
+          "²¹⁸₈₂Pb"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²³²₉₀Th?",
+        "options": [
+          "²²⁸₈₈Ra",
+          "²²⁸₉₀Th",
+          "²³²₈₈Ra"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²³⁵₉₂U?",
+        "options": [
+          "²³¹₉₀Th",
+          "²³¹₉₂U",
+          "²³¹₈₈Ra"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²³⁹₉₄Pu?",
+        "options": [
+          "²³⁵₉₂U",
+          "²³⁵₉₄Pu",
+          "²³⁹₉₂U"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²⁴¹₉₅Am?",
+        "options": [
+          "²³⁷₉₃Np",
+          "²³⁷₉₅Am",
+          "²⁴¹₉₃Np"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²¹²₈₃Bi?",
+        "options": [
+          "²⁰⁸₈₁Tl",
+          "²⁰⁸₈₃Bi",
+          "²¹²₈₁Tl"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²¹⁰₈₂Pb (energetisch möglich, real β⁻)?",
+        "options": [
+          "²⁰⁶₈₀Hg",
+          "²⁰⁶₈₂Pb",
+          "²⁰⁶₈₄Po"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²²⁸₉₀Th?",
+        "options": [
+          "²²⁴₈₈Ra",
+          "²²⁴₉₀Th",
+          "²²⁸₈₈Ra"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²²⁴₈₈Ra?",
+        "options": [
+          "²²⁰₈₆Rn",
+          "²²⁰₈₈Ra",
+          "²²⁴₈₆Rn"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ³₁H (Tritium)?",
+        "options": [
+          "³₂He",
+          "²₁H",
+          "⁴₂He"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ¹³¹₅₃I?",
+        "options": [
+          "¹³¹₅₂Te",
+          "¹³¹₅₄Xe",
+          "¹³⁰₅₃I"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ⁹⁰₃₈Sr?",
+        "options": [
+          "⁹⁰₃₇Rb",
+          "⁹⁰₃₉Y",
+          "⁸⁹₃₈Sr"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ⁹⁰₃₉Y?",
+        "options": [
+          "⁹⁰₃₈Sr",
+          "⁹⁰₄₀Zr",
+          "⁸⁹₃₉Y"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ¹³⁷₅₅Cs?",
+        "options": [
+          "¹³⁷₅₄Xe",
+          "¹³⁷₅₆Ba",
+          "¹³⁶₅₅Cs"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ⁶⁰₂₇Co?",
+        "options": [
+          "⁶⁰₂₆Fe",
+          "⁶⁰₂₈Ni",
+          "⁵⁹₂₇Co"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ³²₁₅P?",
+        "options": [
+          "³²₁₄Si",
+          "³²₁₆S",
+          "³¹₁₅P"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ³⁵₁₆S?",
+        "options": [
+          "³⁵₁₅P",
+          "³⁵₁₇Cl",
+          "³⁴₁₆S"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ⁴⁰₁₉K?",
+        "options": [
+          "⁴⁰₁₈Ar",
+          "⁴⁰₂₀Ca",
+          "³⁹₁₉K"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ²³⁴₉₀Th?",
+        "options": [
+          "²³⁴₈₉Ac",
+          "²³⁴₉₁Pa",
+          "²³⁴₉₂U"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ²³⁴₉₁Pa?",
+        "options": [
+          "²³⁴₉₀Th",
+          "²³⁴₉₂U",
+          "²³³₉₁Pa"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ⁸⁷₃₆Kr?",
+        "options": [
+          "⁸⁷₃₅Br",
+          "⁸⁷₃₇Rb",
+          "⁸⁶₃₆Kr"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ¹⁴⁰₅₆Ba?",
+        "options": [
+          "¹⁴⁰₅₅Cs",
+          "¹⁴⁰₅₇La",
+          "¹³⁹₅₆Ba"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Beim α-Zerfall ändern sich Z und A wie?",
+        "options": [
+          "Z + 2, A + 4",
+          "Z − 2, A − 4",
+          "Z bleibt, A − 4"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Beim β⁻-Zerfall ändern sich Z und A wie?",
+        "options": [
+          "Z + 1, A bleibt",
+          "Z − 1, A bleibt",
+          "Z bleibt, A − 1"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Größe bleibt beim β⁻-Zerfall unverändert?",
+        "options": [
+          "Kernladungszahl Z",
+          "Massenzahl A",
+          "Anzahl Protonen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Größe bleibt beim γ-Zerfall unverändert?",
+        "options": [
+          "nur Z",
+          "nur A",
+          "Z und A bleiben beide unverändert"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was ändert sich bei einem γ-Übergang im Kern?",
+        "options": [
+          "Massenzahl",
+          "Kernladungszahl",
+          "innerer Energiezustand des Kerns"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Bilanzregel gilt für jede Kernreaktionsgleichung?",
+        "options": [
+          "nur Z links = rechts",
+          "nur A links = rechts",
+          "Z links = Z rechts UND A links = A rechts"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Reaktionsgleichung ist korrekt?",
+        "options": [
+          "²³⁸U → ²³⁴Th + ⁴He",
+          "²³⁸U → ²³⁴Th + ⁰₋₁e",
+          "²³⁸U → ²³⁵Th + ³He"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Eine Probe enthält 1 000 000 radioaktive Atome. Wie viele sind nach 1 Halbwertszeit übrig?",
+        "options": [
+          "250 000",
+          "500 000",
+          "750 000"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Eine Probe enthält 1 000 000 radioaktive Atome. Wie viele sind nach 2 Halbwertszeiten übrig?",
+        "options": [
+          "250 000",
+          "500 000",
+          "750 000"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Eine Probe enthält 1 000 000 Atome. Wie viele sind nach 3 Halbwertszeiten übrig?",
+        "options": [
+          "100 000",
+          "125 000",
+          "200 000"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "32 000 Atome — wie viele nach 5 Halbwertszeiten?",
+        "options": [
+          "500",
+          "1 000",
+          "2 000"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Nach wie vielen Halbwertszeiten ist eine Probe auf etwa 25 % gefallen?",
+        "options": [
+          "1",
+          "2",
+          "4"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Nach wie vielen Halbwertszeiten ist eine Probe auf etwa 12,5 % gefallen?",
+        "options": [
+          "3",
+          "4",
+          "8"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Nach wie vielen Halbwertszeiten ist eine Probe auf etwa 1 % gefallen?",
+        "options": [
+          "3",
+          "7",
+          "10"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "I-131 hat T₁/₂ = 8 d. Nach 16 Tagen ist eine Probe auf welchen Anteil gefallen?",
+        "options": [
+          "1/2",
+          "1/4",
+          "1/8"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "I-131 hat T₁/₂ = 8 d. Nach 24 Tagen?",
+        "options": [
+          "1/4",
+          "1/8",
+          "1/16"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Cs-137 hat T₁/₂ = 30 a. Nach 90 Jahren ist eine Probe auf welchen Anteil gefallen?",
+        "options": [
+          "1/2",
+          "1/4",
+          "1/8"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "C-14 hat T₁/₂ = 5 730 a. Nach welcher Zeit ist die C-14-Aktivität auf 1/4 gefallen?",
+        "options": [
+          "5 730 a",
+          "11 460 a",
+          "22 920 a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tritium (T₁/₂ = 12,3 a) liegt nach 24,6 Jahren auf welchem Anteil?",
+        "options": [
+          "1/2",
+          "1/4",
+          "1/8"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pu-239 hat T₁/₂ = 24 100 a. Nach welcher Zeit ist die Aktivität auf 1/4 gefallen?",
+        "options": [
+          "12 050 a",
+          "24 100 a",
+          "48 200 a"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "U-238 hat T₁/₂ = 4,5 Mrd. Jahre. Was bedeutet das?",
+        "options": [
+          "Nach 4,5 Mrd. Jahren ist alles zerfallen.",
+          "Nach 4,5 Mrd. Jahren ist die Hälfte zerfallen.",
+          "Nach 9 Mrd. Jahren ist alles zerfallen."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Nuklid hat die KÜRZESTE Halbwertszeit?",
+        "options": [
+          "I-131 (8 Tage)",
+          "Cs-137 (30 a)",
+          "U-238 (4,5 Mrd. a)"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welches Nuklid hat die LÄNGSTE Halbwertszeit?",
+        "options": [
+          "I-131",
+          "Cs-137",
+          "U-238"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Aktivitätseinheit?",
+        "options": [
+          "Sievert",
+          "Becquerel",
+          "Gray"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "1 Bq entspricht …",
+        "options": [
+          "1 Zerfall pro Sekunde",
+          "1 Zerfall pro Minute",
+          "1 Zerfall pro Jahr"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "In einer Probe finden 3 600 Zerfälle in 60 Sekunden statt. Aktivität in Bq?",
+        "options": [
+          "1 Bq",
+          "60 Bq",
+          "3 600 Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In einer Probe finden 1 200 Zerfälle in 1 Minute statt. Aktivität?",
+        "options": [
+          "1 200 Bq",
+          "20 Bq",
+          "60 Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Aktivität hat eine Probe mit 30 Zerfällen pro 0,5 s?",
+        "options": [
+          "15 Bq",
+          "30 Bq",
+          "60 Bq"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was bedeutet 1 kBq?",
+        "options": [
+          "1 000 Bq",
+          "1 000 000 Bq",
+          "1 000 000 000 Bq"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Was bedeutet 1 MBq?",
+        "options": [
+          "1 000 Bq",
+          "1 000 000 Bq",
+          "1 000 000 000 Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was bedeutet 1 GBq?",
+        "options": [
+          "10⁶ Bq",
+          "10⁹ Bq",
+          "10¹² Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "1 Curie (alte Einheit) entspricht etwa …",
+        "options": [
+          "3,7 · 10⁷ Bq",
+          "3,7 · 10¹⁰ Bq",
+          "3,7 · 10¹³ Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Aktivität hat 1 g Ra-226 ungefähr?",
+        "options": [
+          "≈ 3,7 · 10⁷ Bq",
+          "≈ 3,7 · 10¹⁰ Bq",
+          "≈ 3,7 · 10¹³ Bq"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie hängt die Aktivität A mit der Anzahl N und der Zerfallskonstante λ zusammen?",
+        "options": [
+          "A = N − λ",
+          "A = λ · N",
+          "A = N / λ"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie ist die Zerfallskonstante λ mit T₁/₂ verknüpft?",
+        "options": [
+          "λ = T₁/₂",
+          "λ = ln(2) / T₁/₂",
+          "λ = T₁/₂ · 2"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Eine Probe enthält 10⁹ Atome eines Nuklids mit T₁/₂ = 1 a. Welche Größenordnung hat die Aktivität?",
+        "options": [
+          "~ 10 Bq",
+          "~ 20 Bq",
+          "~ 22 Bq"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Geschwindigkeit von α-Teilchen direkt nach dem Zerfall?",
+        "options": [
+          "≈ 5 % der Lichtgeschwindigkeit",
+          "≈ 50 % der Lichtgeschwindigkeit",
+          "≈ Lichtgeschwindigkeit"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Geschwindigkeit von β⁻-Teilchen?",
+        "options": [
+          "fester Wert ≈ 5 % c",
+          "fester Wert ≈ 50 % c",
+          "kontinuierlich von 0 bis fast c"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Geschwindigkeit von γ-Quanten?",
+        "options": [
+          "≈ 5 % c",
+          "≈ Lichtgeschwindigkeit",
+          "0 (sind ja nur Energiepakete)"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Strahlungsart hat die größte Reichweite in Luft?",
+        "options": [
+          "α",
+          "β⁻",
+          "γ"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Strahlungsart hat die GERINGSTE Reichweite in Luft?",
+        "options": [
+          "α (~ 5 cm)",
+          "β⁻ (~ 2 m)",
+          "γ (m bis km)"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Strahlung wird durch ein Blatt Papier abgeschirmt?",
+        "options": [
+          "α",
+          "β⁻",
+          "γ"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Strahlung benötigt ~2 mm Aluminium zur Abschirmung?",
+        "options": [
+          "α",
+          "β⁻",
+          "γ"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Strahlung benötigt mehrere cm Blei zur Halbierung?",
+        "options": [
+          "α",
+          "β⁻",
+          "γ"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Strahlungsart hat die Ladung +2?",
+        "options": [
+          "α-Strahlung",
+          "β⁻-Strahlung",
+          "γ-Strahlung"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Strahlungsart hat die Ladung −1?",
+        "options": [
+          "α-Strahlung",
+          "β⁻-Strahlung",
+          "γ-Strahlung"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Strahlungsart hat keine Ladung und keine Ruhemasse?",
+        "options": [
+          "α-Strahlung",
+          "β⁻-Strahlung",
+          "γ-Strahlung"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie wird Beta-Strahlung in einem Magnetfeld abgelenkt?",
+        "options": [
+          "nicht (keine Ladung)",
+          "in entgegengesetzte Richtung wie α (gegensätzliche Ladung)",
+          "in gleiche Richtung wie α"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele Joule sind 1 eV?",
+        "options": [
+          "1,602 · 10⁻¹⁶ J",
+          "1,602 · 10⁻¹⁹ J",
+          "1,602 · 10⁻²² J"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele eV sind 1 keV?",
+        "options": [
+          "10²",
+          "10³",
+          "10⁶"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele eV sind 1 MeV?",
+        "options": [
+          "10³",
+          "10⁶",
+          "10⁹"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie viele J sind 5 MeV ungefähr?",
+        "options": [
+          "5 · 10⁻¹⁹ J",
+          "5 · 10⁻¹⁶ J",
+          "8 · 10⁻¹³ J"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Typische Energie eines α-Teilchens?",
+        "options": [
+          "wenige eV",
+          "wenige keV",
+          "wenige MeV"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Typische Energie eines γ-Quants beim Kernzerfall?",
+        "options": [
+          "wenige eV",
+          "wenige keV bis MeV",
+          "wenige GeV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Δm = 0,01 u entspricht welcher Energie?",
+        "options": [
+          "~ 1 eV",
+          "~ 1 keV",
+          "~ 9,3 MeV"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Bei welchem Kern ist der Massendefekt am größten relativ zur Nukleonenmasse?",
+        "options": [
+          "²H (Deuterium)",
+          "⁴He",
+          "²³⁸U"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Bindungsenergie pro Nukleon gilt typisch für mittelschwere Kerne?",
+        "options": [
+          "≈ 1 MeV",
+          "≈ 8 MeV",
+          "≈ 100 MeV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie groß ist die Gesamt-Bindungsenergie von ⁴He ungefähr?",
+        "options": [
+          "7 MeV",
+          "28 MeV",
+          "200 MeV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pro Nukleon ist ⁴He gebunden mit etwa …",
+        "options": [
+          "1 MeV",
+          "7 MeV",
+          "20 MeV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pro Nukleon ist ²³⁵U gebunden mit etwa …",
+        "options": [
+          "1 MeV",
+          "7,6 MeV",
+          "200 MeV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei der Spaltung von 1 g U-235 wird wieviel Energie frei?",
+        "options": [
+          "≈ 8 · 10⁴ J",
+          "≈ 8 · 10¹⁰ J",
+          "≈ 8 · 10¹⁶ J"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "1 kg vollständig in Energie umgewandelt entspricht ungefähr …",
+        "options": [
+          "3 · 10⁸ J",
+          "9 · 10¹³ J",
+          "9 · 10¹⁶ J"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Bei der Kernspaltung eines U-235-Kerns mit langsamen Neutronen entstehen typisch …",
+        "options": [
+          "1 Tochterkern und keine Neutronen",
+          "2 mittelschwere Tochterkerne und 2–3 Neutronen",
+          "ein α-Teilchen und ein Tochterkern"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wofür werden bei der Kernspaltung freie Neutronen gebraucht?",
+        "options": [
+          "Sie werden durch Generatoren in Strom umgewandelt.",
+          "Sie lösen weitere Kernspaltungen aus → Kettenreaktion.",
+          "Sie werden bei der Spaltung verbraucht und kehren nicht zurück."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Nuklid wird in den meisten Reaktoren zur Spaltung genutzt?",
+        "options": [
+          "U-235",
+          "U-238",
+          "Pu-240"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Anteil von U-235 ist in natürlichem Uran vorhanden?",
+        "options": [
+          "ca. 0,7 %",
+          "ca. 7 %",
+          "ca. 70 %"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Was ist die Aufgabe eines Moderators im Reaktor?",
+        "options": [
+          "die Neutronen zu beschleunigen",
+          "die Neutronen zu absorbieren",
+          "die Neutronen abzubremsen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welcher Stoff dient als Moderator in deutschen Leichtwasserreaktoren?",
+        "options": [
+          "Graphit",
+          "Wasser",
+          "schweres Wasser"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was geschieht bei einer Kernfusion?",
+        "options": [
+          "Schwere Kerne werden gespalten.",
+          "Leichte Kerne verschmelzen zu schwereren.",
+          "Ein α-Teilchen wird ausgesendet."
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wo läuft die Kernfusion in der Natur ab?",
+        "options": [
+          "im Erdkern",
+          "in Sternen wie der Sonne",
+          "in radioaktiven Mineralien"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Endprodukt entsteht bei der Fusion D + T?",
+        "options": [
+          "He-3 + γ",
+          "He-4 + n",
+          "Li-6 + p"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wer entdeckte 1896 die Radioaktivität?",
+        "options": [
+          "Marie Curie",
+          "Henri Becquerel",
+          "Albert Einstein"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welchem Jahr wurde die Radioaktivität entdeckt?",
+        "options": [
+          "1896",
+          "1903",
+          "1911"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Elemente entdeckten die Curies in Pechblende?",
+        "options": [
+          "Uran und Radium",
+          "Polonium und Radium",
+          "Plutonium und Polonium"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wofür erhielt Marie Curie 1911 (zweiter) Nobelpreis?",
+        "options": [
+          "Physik",
+          "Chemie",
+          "Medizin"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wer prägte den Begriff Kernspaltung 1939?",
+        "options": [
+          "Otto Hahn",
+          "Lise Meitner und Otto Frisch",
+          "Marie Curie"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Energieform steht am Anfang der Energiekette eines Kohlekraftwerks?",
+        "options": [
+          "chemische Energie",
+          "Kernenergie",
+          "elektrische Energie"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Energieform steht am Anfang der Energiekette eines KKW?",
+        "options": [
+          "chemische Energie",
+          "Kernenergie",
+          "Wärmeenergie"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Energieform liegt im Zwischenkreislauf eines KKW vor?",
+        "options": [
+          "mechanische Energie",
+          "Wärmeenergie (Dampf)",
+          "chemische Energie"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wo wird mechanische Energie in elektrische umgewandelt?",
+        "options": [
+          "Turbine",
+          "Generator",
+          "Kondensator"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wo wird Druck-/Wärmeenergie in mechanische umgewandelt?",
+        "options": [
+          "Turbine",
+          "Generator",
+          "Kondensator"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "In welcher Form treten in Kraftwerken Energieverluste auf?",
+        "options": [
+          "als elektrische Energie",
+          "als Wärmeenergie",
+          "als Bewegungsenergie"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wirkungsgrad eines typischen Kernkraftwerks?",
+        "options": [
+          "≈ 14 %",
+          "≈ 34 %",
+          "≈ 95 %"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie wird die Wärme im Kühlmittel auf die Wassermoleküle übertragen?",
+        "options": [
+          "durch γ-Strahlung",
+          "durch Stöße zwischen Teilchen (Wärmeleitung)",
+          "durch chemische Reaktion"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was bedeutet 0 K (absoluter Nullpunkt)?",
+        "options": [
+          "Teilchen bewegen sich extrem schnell.",
+          "Teilchen sind in Ruhe (klassisch).",
+          "alle Atome zerfallen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wenn die Temperatur eines Stoffes steigt, dann …",
+        "options": [
+          "bewegen sich die Teilchen langsamer",
+          "bewegen sich die Teilchen heftiger",
+          "verlieren die Atome Elektronen"
+        ],
+        "correct": 1
+      }
+    ],
+    "drawCount": 15
+  },
+  "block3": {
+    "title": "Block 3 — Strahlung verstehen, messen und nutzen",
+    "subtitle": "Dosis, Strahlenschutz, Anwendungen, Endlager",
+    "questions": [
+      {
+        "q": "Was wird durch die Energiedosis angegeben?",
+        "options": [
+          "Absorbierte Strahlungsenergie",
+          "Absorbierte Strahlungsenergie pro Zeit",
+          "Absorbierte Strahlungsenergie pro Masse"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "In welcher Einheit misst man die Energiedosis?",
+        "options": [
+          "J/kg (= Gy)",
+          "Bq/kg",
+          "Sv/a"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Die biologische Wirkung ionisierender Strahlen wird beschrieben, indem die Energiedosis multipliziert wird mit …",
+        "options": [
+          "dem Faktor 2,5",
+          "einem Strahlungs-Wichtungsfaktor",
+          "der Bestrahlungszeit"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Zwei gleich schwere Objekte A und B nehmen gleich viel Energie auf — A durch γ, B durch α. Dann ist die biologische Wirkung …",
+        "options": [
+          "bei A 20-mal größer als bei B",
+          "bei B 20-mal größer als bei A",
+          "bei A so groß wie bei B"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welcher Einheit misst man die Organdosis?",
+        "options": [
+          "Sievert (Sv)",
+          "Becquerel (Bq)",
+          "Joule (J)"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Die Dosisleistung gibt die Dosis pro Zeit an. In welcher Einheit?",
+        "options": [
+          "Bq/a",
+          "J/a",
+          "Sv/a"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie werden die Strahlenschäden unterteilt?",
+        "options": [
+          "Schäden durch Teilchen- und durch Wellenstrahlung",
+          "Somatische und genetische Schäden",
+          "Schäden < 50 mSv und Schäden > 50 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei welcher einmaligen Ganzkörperdosis treten erste klinisch fassbare Effekte auf?",
+        "options": [
+          "ab etwa 250 mSv",
+          "ab etwa 50 mSv",
+          "ab etwa 0,30 mSv"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Grenzwert der effektiven Dosis pro Jahr gilt für beruflich strahlenexponierte Personen in DE?",
+        "options": [
+          "20 mSv",
+          "50 mSv",
+          "250 mSv"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Grenzwert für die effektive Dosis der Bevölkerung durch Ableitungen aus kerntechnischen Anlagen gilt in DE (je Pfad)?",
+        "options": [
+          "30 mSv/a",
+          "3 mSv/a",
+          "0,3 mSv/a"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Die Intensität der kosmischen Strahlung …",
+        "options": [
+          "steigt mit zunehmender Höhe",
+          "sinkt mit zunehmender Höhe",
+          "steigt und sinkt abwechselnd alle 1 000 m"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wodurch wird die terrestrische Strahlung verursacht?",
+        "options": [
+          "durch besonders hartes Gestein",
+          "durch die gesamte Erdmaterie",
+          "durch Lava von Vulkanausbrüchen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Die terrestrische Strahlung …",
+        "options": [
+          "ist überall auf der Erde gleich",
+          "schwankt mit dem geologischen Untergrund",
+          "tritt nur im Gebirge oberhalb 1 000 m auf"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Der menschliche Körper besitzt eine Eigenstrahlung, weil …",
+        "options": [
+          "er ständig durch kosmische Strahlung bestrahlt wird",
+          "natürliche Radionuklide mit Nahrung und Atmung aufgenommen werden",
+          "die Haut durch radioaktiven Staub verunreinigt ist"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei der natürlichen Strahlenexposition ist die Bestrahlung …",
+        "options": [
+          "von außen so groß wie von innen",
+          "von außen größer als von innen",
+          "von innen größer als von außen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Die Organe des Menschen werden durch die natürliche Strahlung unterschiedlich belastet. Die stärkste Belastung ergibt sich für …",
+        "options": [
+          "die Keimdrüsen",
+          "die Knochen",
+          "die Lungen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Wie groß ist die mittlere effektive Jahresdosis durch natürliche Strahlung in DE?",
+        "options": [
+          "2,1 mSv",
+          "1,5 mSv",
+          "0,3 mSv"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Die zivilisatorisch bedingte Strahlenexposition wird im Wesentlichen verursacht durch …",
+        "options": [
+          "das Fernsehen",
+          "die Kernkraftwerke",
+          "die medizinischen Strahlenanwendungen"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Die zivilisatorisch bedingte Strahlenexposition beträgt im Mittel etwa …",
+        "options": [
+          "200 mSv/a",
+          "20 mSv/a",
+          "2 mSv/a"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Der Anteil der Kernkraftwerke an der zivilisatorischen Strahlenexposition beträgt weniger als …",
+        "options": [
+          "1 mSv/a",
+          "0,1 mSv/a",
+          "0,01 mSv/a"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welcher Tochterkern entsteht beim α-Zerfall von ²¹⁰₈₄Po (in der Polonium-Bleireihe)?",
+        "options": [
+          "²⁰⁶₈₂Pb",
+          "²¹⁰₈₂Pb",
+          "²⁰⁶₈₄Po"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welcher Tochterkern entsteht beim β⁻-Zerfall von ¹³¹₅₃I (Schilddrüsen-Diagnostik)?",
+        "options": [
+          "¹³¹₅₂Te",
+          "¹³¹₅₄Xe",
+          "¹³⁰₅₃I"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie bewegt sich der Mutterkern in der Nuklidkarte beim α-Zerfall?",
+        "options": [
+          "2 Felder nach links und 2 nach unten",
+          "1 Feld nach oben und 1 nach links",
+          "4 Felder nach unten und 2 nach links"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "In einem Gewebe von 1 kg werden 0,002 J Strahlungsenergie absorbiert. Wie groß ist die Energiedosis?",
+        "options": [
+          "0,002 mGy",
+          "2 mGy",
+          "200 mGy"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Ein Gewebe nimmt 5 mGy α-Strahlung auf (Strahlungs-Wichtungsfaktor wᵣ = 20). Wie groß ist die Äquivalentdosis?",
+        "options": [
+          "5 mSv",
+          "25 mSv",
+          "100 mSv"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Eine Person erhält 2 mSv durch Röntgendiagnostik und 2 mSv durch natürliche Strahlung im Jahr. Wie groß ist die Gesamt-Jahresdosis?",
+        "options": [
+          "2 mSv",
+          "4 mSv",
+          "8 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pu-239 hat T₁/₂ = 24 100 a. Nach wie vielen Halbwertszeiten ist die Aktivität auf weniger als 1 % gefallen?",
+        "options": [
+          "4",
+          "7",
+          "10"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pu-239 (T₁/₂ = 24 100 a): Nach welcher Zeit ist die Aktivität auf weniger als 1 % gefallen?",
+        "options": [
+          "ca. 100 000 a",
+          "ca. 170 000 a",
+          "ca. 24 100 a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welcher Einheit wird die Energiedosis gemessen?",
+        "options": [
+          "Sievert (Sv)",
+          "Gray (Gy)",
+          "Becquerel (Bq)"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "1 Gy entspricht …",
+        "options": [
+          "1 J/kg",
+          "1 J/s",
+          "1 J/m³"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "0,5 J Strahlungsenergie wird in 0,1 kg Gewebe absorbiert. Energiedosis?",
+        "options": [
+          "0,5 Gy",
+          "5 Gy",
+          "50 Gy"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Größe gibt die absorbierte Energie pro Masse an?",
+        "options": [
+          "Aktivität",
+          "Energiedosis",
+          "Äquivalentdosis"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Größe wird mit Sv gemessen?",
+        "options": [
+          "Aktivität",
+          "Energiedosis",
+          "Äquivalent- und effektive Dosis"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was unterscheidet die Äquivalentdosis von der Energiedosis?",
+        "options": [
+          "nichts (gleicher Wert)",
+          "der Strahlungs-Wichtungsfaktor wᵣ",
+          "die Bestrahlungszeit"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Strahlungs-Wichtungsfaktor wᵣ für γ-Strahlung?",
+        "options": [
+          "1",
+          "5",
+          "20"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Strahlungs-Wichtungsfaktor wᵣ für β⁻-Strahlung?",
+        "options": [
+          "1",
+          "5",
+          "20"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Strahlungs-Wichtungsfaktor wᵣ für α-Strahlung?",
+        "options": [
+          "1",
+          "5",
+          "20"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Strahlungs-Wichtungsfaktor wᵣ für Protonen (E > 2 MeV)?",
+        "options": [
+          "1",
+          "5",
+          "20"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Ein Gewebe nimmt 1 mGy γ-Strahlung auf. Welche Äquivalentdosis?",
+        "options": [
+          "1 mSv",
+          "5 mSv",
+          "20 mSv"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Ein Gewebe nimmt 1 mGy α-Strahlung auf. Welche Äquivalentdosis?",
+        "options": [
+          "1 mSv",
+          "5 mSv",
+          "20 mSv"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Ein Gewebe nimmt 0,5 mGy α-Strahlung auf. Welche Äquivalentdosis?",
+        "options": [
+          "0,5 mSv",
+          "10 mSv",
+          "100 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Strahlungsart ist bei gleicher Energiedosis biologisch am schädlichsten?",
+        "options": [
+          "γ",
+          "β⁻",
+          "α"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Eine α-Belastung von 2 mGy entspricht welcher Äquivalentdosis?",
+        "options": [
+          "2 mSv",
+          "20 mSv",
+          "40 mSv"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Eine Person erhält pro Jahr 2 mSv Hintergrund + 3 mSv medizinisch. Gesamtjahresdosis?",
+        "options": [
+          "2 mSv",
+          "3 mSv",
+          "5 mSv"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Was beschreibt der Gewebe-Wichtungsfaktor wₜ?",
+        "options": [
+          "die Dichte des Gewebes",
+          "die unterschiedliche Strahlenempfindlichkeit verschiedener Organe",
+          "die Größe des Organs"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Organdosis-Werte sind bei der natürlichen Strahlenexposition am höchsten?",
+        "options": [
+          "Haut",
+          "Lunge",
+          "Augen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie wird die effektive Dosis E aus den Organdosen H_T berechnet?",
+        "options": [
+          "E = Σ wᵣ · H_T",
+          "E = Σ wₜ · H_T",
+          "E = Σ H_T / wₜ"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie unterteilt man Strahlenschäden grundsätzlich?",
+        "options": [
+          "leicht/schwer",
+          "somatisch/genetisch",
+          "zentral/peripher"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Genetische Strahlenschäden …",
+        "options": [
+          "betreffen den bestrahlten Menschen direkt",
+          "können in den Keimzellen entstehen und an Nachkommen weitergegeben werden",
+          "treten nur bei α-Strahlung auf"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Schäden gehören zu den somatischen Strahlenschäden?",
+        "options": [
+          "Erbgutveränderungen in Keimzellen",
+          "Krebs, Leukämie, Strahlenkrankheit",
+          "Mutationen bei den Nachkommen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Frühschäden treten auf, wenn …",
+        "options": [
+          "eine geringe Dosis lange wirkt",
+          "eine Schwellendosis überschritten wird",
+          "die Strahlung kosmischen Ursprungs ist"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Spätschäden entstehen typischerweise …",
+        "options": [
+          "wenige Stunden nach Bestrahlung",
+          "Jahre bis Jahrzehnte nach Bestrahlung",
+          "nur bei Tieren"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei welcher Ganzkörperdosis treten erste klinisch fassbare Effekte auf?",
+        "options": [
+          "≈ 50 mSv",
+          "≈ 250 mSv",
+          "≈ 2 500 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "LD-50 (50 % Sterblichkeit ohne Behandlung) bei einmaliger Ganzkörperbestrahlung?",
+        "options": [
+          "≈ 200 mSv",
+          "≈ 4 000 mSv",
+          "≈ 20 000 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Sicher tödliche Dosis ohne Behandlung?",
+        "options": [
+          "≈ 700 mSv",
+          "≈ 7 000 mSv",
+          "≈ 70 000 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Mittlere natürliche Jahres-Strahlendosis in Deutschland?",
+        "options": [
+          "≈ 0,2 mSv/a",
+          "≈ 2,1 mSv/a",
+          "≈ 21 mSv/a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Quelle hat den größten Anteil an der natürlichen Strahlenexposition?",
+        "options": [
+          "kosmische Strahlung",
+          "terrestrische Strahlung",
+          "inkorporierte Radionuklide (vor allem Radon)"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welches Edelgas trägt am meisten zur Strahlenbelastung der Lunge bei?",
+        "options": [
+          "Argon",
+          "Radon (Rn-222)",
+          "Xenon"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Mittlere kosmische Komponente in DE?",
+        "options": [
+          "≈ 0,3 mSv/a",
+          "≈ 1,4 mSv/a",
+          "≈ 3 mSv/a"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie verändert sich die kosmische Strahlung mit der Höhe?",
+        "options": [
+          "sie nimmt zu",
+          "sie nimmt ab",
+          "sie bleibt gleich"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Mittlere terrestrische Komponente in DE?",
+        "options": [
+          "≈ 0,4 mSv/a",
+          "≈ 1,4 mSv/a",
+          "≈ 4 mSv/a"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Was ist der Nulleffekt bei einem Geigerzähler?",
+        "options": [
+          "Zählrate ohne Probe (durch Hintergrundstrahlung)",
+          "Zählrate bei kaputter Röhre",
+          "Zählrate bei Stromausfall"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wieso muss der Nulleffekt von Messwerten abgezogen werden?",
+        "options": [
+          "damit der Zähler nicht überlastet wird",
+          "um die tatsächliche Aktivität der Probe zu erhalten",
+          "weil sonst die Spannung schwankt"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Mittlere zivilisatorische Jahresdosis in DE?",
+        "options": [
+          "≈ 0,2 mSv/a",
+          "≈ 2,0 mSv/a",
+          "≈ 20 mSv/a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Beitrag dominiert die zivilisatorische Strahlenexposition?",
+        "options": [
+          "Kernkraftwerke",
+          "medizinische Anwendungen (vor allem Röntgen)",
+          "Flugverkehr"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Strahlenexposition durch ein Bauchraum-CT (effektive Dosis)?",
+        "options": [
+          "≈ 0,3 mSv",
+          "≈ 30 mSv",
+          "≈ 300 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Strahlenexposition durch ein Zahn-Röntgen?",
+        "options": [
+          "≈ 0,01 mSv",
+          "≈ 1 mSv",
+          "≈ 10 mSv"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Beitrag der Kernkraftwerke an der Bevölkerungsdosis in DE?",
+        "options": [
+          "< 0,01 mSv/a",
+          "≈ 0,5 mSv/a",
+          "≈ 5 mSv/a"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Strahlenexposition eines Transatlantikflugs FRA→JFK→FRA?",
+        "options": [
+          "≈ 0,1 µSv",
+          "≈ 100 µSv",
+          "≈ 100 mSv"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welches Nuklid wird häufig zur Schilddrüsen-Diagnostik / Therapie verwendet?",
+        "options": [
+          "I-131",
+          "Cs-137",
+          "U-235"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welches Nuklid wird häufig in der nuklearmedizinischen Diagnostik genutzt (kurze T₁/₂)?",
+        "options": [
+          "Tc-99m",
+          "Cs-137",
+          "U-238"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wofür wird Co-60 in der Medizin eingesetzt?",
+        "options": [
+          "Strahlentherapie (γ-Strahler)",
+          "PET-Diagnostik",
+          "Knochenmarkstransplantation"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wofür wird C-14 hauptsächlich genutzt?",
+        "options": [
+          "zur Sterilisation",
+          "zur Altersbestimmung",
+          "im Reaktor zur Spaltung"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Strahlungsart eignet sich zur Materialprüfung von Schweißnähten?",
+        "options": [
+          "α-Strahlung",
+          "β⁻-Strahlung",
+          "γ-Strahlung"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Welche Wirkung nutzt man bei der Lebensmittel-Bestrahlung?",
+        "options": [
+          "Erwärmung",
+          "biozide Wirkung (Abtöten von Keimen)",
+          "Geschmacksverbesserung"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "In welchen Geräten wird Am-241 alltäglich eingesetzt?",
+        "options": [
+          "Smartphones",
+          "Ionisations-Rauchmelder",
+          "Mikrowellen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Pu-239 (T₁/₂ = 24 100 a) — nach 7 Halbwertszeiten ist die Aktivität auf …",
+        "options": [
+          "50 %",
+          "10 %",
+          "< 1 %"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "7 · T₁/₂ von Pu-239 entsprechen ungefähr …",
+        "options": [
+          "10 000 a",
+          "170 000 a",
+          "1 700 000 a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Halbwertszeit hat Tc-99 (langlebiges Spaltprodukt)?",
+        "options": [
+          "≈ 8 d",
+          "≈ 30 a",
+          "≈ 200 000 a"
+        ],
+        "correct": 2
+      },
+      {
+        "q": "Warum gilt die Endlagerung radioaktiver Abfälle als gesellschaftliches Problem?",
+        "options": [
+          "weil das Material teuer ist",
+          "weil die Abfälle hunderttausende Jahre sicher eingeschlossen werden müssen",
+          "weil radioaktive Stoffe schnell zerfallen"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Wirtsgesteine kommen für ein Endlager in Frage?",
+        "options": [
+          "nur Salz",
+          "Salz, Ton oder Granit",
+          "ausschließlich vulkanisches Gestein"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Tiefe wird für ein Endlager in DE mindestens angestrebt?",
+        "options": [
+          "30 m",
+          "300 m",
+          "3 000 m"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was ist der wichtigste Sicherheitsaspekt eines Endlagers?",
+        "options": [
+          "dass es sichtbar markiert ist",
+          "dass es trocken und vom Grundwasser getrennt bleibt",
+          "dass es leicht zugänglich ist"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²³⁸₉₂U (Beginn U-Radium-Reihe)?",
+        "options": [
+          "²³⁴₉₀Th",
+          "²³⁴₉₂U",
+          "²³⁸₉₀Th"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim α-Zerfall von ²²⁶₈₈Ra?",
+        "options": [
+          "²²²₈₆Rn",
+          "²²²₈₈Ra",
+          "²²⁶₈₆Rn"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Tochterkern beim β⁻-Zerfall von ²¹⁰₈₂Pb?",
+        "options": [
+          "²¹⁰₈₃Bi",
+          "²¹⁰₈₁Tl",
+          "²⁰⁹₈₂Pb"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Reihe endet bei ²⁰⁶₈₂Pb?",
+        "options": [
+          "Th-Reihe",
+          "U-Radium-Reihe",
+          "U-Actinium-Reihe"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Reihe endet bei ²⁰⁸₈₂Pb?",
+        "options": [
+          "Th-Reihe",
+          "U-Radium-Reihe",
+          "U-Actinium-Reihe"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie heißt das radioaktive Edelgas, das aus U-Zerfallsreihen entsteht?",
+        "options": [
+          "Krypton-85",
+          "Radon-222",
+          "Xenon-133"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Tochterkern entsteht beim β⁻-Zerfall von ⁴⁰₁₉K (im menschlichen Körper)?",
+        "options": [
+          "⁴⁰₁₈Ar",
+          "⁴⁰₂₀Ca",
+          "³⁹₁₉K"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie ist die Aktivität A im natürlichen Hintergrund pro kg Körper?",
+        "options": [
+          "≈ 10 Bq/kg",
+          "≈ 130 Bq/kg",
+          "≈ 13 000 Bq/kg"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Beitrag zur Eigenstrahlung des Menschen kommt vor allem aus K-40?",
+        "options": [
+          "≈ 4 200 Bq",
+          "≈ 100 Bq",
+          "≈ 1 Bq"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wer legt in DE die Grenzwerte für Strahlenexposition fest?",
+        "options": [
+          "die WHO",
+          "die Strahlenschutzverordnung (StrlSchV)",
+          "der TÜV"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Grenzwert gilt für beruflich Strahlenexponierte?",
+        "options": [
+          "1 mSv/a",
+          "20 mSv/a",
+          "200 mSv/a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welcher Grenzwert gilt für die Bevölkerung durch kerntechnische Anlagen je Pfad?",
+        "options": [
+          "0,3 mSv/a",
+          "3 mSv/a",
+          "30 mSv/a"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welches Prinzip steht im Strahlenschutz für „so niedrig wie vernünftigerweise erreichbar\"?",
+        "options": [
+          "MIN-Prinzip",
+          "ALARA-Prinzip",
+          "ESCAPE-Prinzip"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Welche Maßnahmen gehören zum praktischen Strahlenschutz?",
+        "options": [
+          "Abstand, Abschirmung, Aufenthaltszeit verkürzen",
+          "Atemmaske, Ohrenschutz, Brille",
+          "Helm, Stiefel, Handschuhe"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Strahlungsart ist bei externer Bestrahlung am ungefährlichsten?",
+        "options": [
+          "α (wird schon von Haut abgeschirmt)",
+          "β⁻",
+          "γ"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Welche Strahlungsart ist bei Inkorporation (im Körper) am gefährlichsten?",
+        "options": [
+          "α",
+          "β⁻",
+          "γ"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie funktioniert ein Geiger-Müller-Zählrohr grob?",
+        "options": [
+          "misst Wärmeentwicklung",
+          "ionisierende Strahlung erzeugt Elektronenlawine im Gas → Stromimpuls",
+          "fluoreszierende Schicht leuchtet"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Was bedeutet ein Aktivitätswert von 1 Becquerel?",
+        "options": [
+          "1 Zerfall pro Sekunde",
+          "1 Zerfall pro Minute",
+          "1 Zerfall pro Stunde"
+        ],
+        "correct": 0
+      },
+      {
+        "q": "Wie alt ist ein Holzfund, wenn der C-14-Anteil nur noch 25 % vom Frischwert beträgt?",
+        "options": [
+          "1 · T₁/₂ ≈ 5 730 a",
+          "2 · T₁/₂ ≈ 11 460 a",
+          "3 · T₁/₂ ≈ 17 190 a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Wie alt, wenn der C-14-Anteil nur noch ca. 12,5 % beträgt?",
+        "options": [
+          "≈ 11 460 a",
+          "≈ 17 190 a",
+          "≈ 22 920 a"
+        ],
+        "correct": 1
+      },
+      {
+        "q": "Bei welcher Sterneneigenschaft entsteht in der Sonne Energie?",
+        "options": [
+          "Spaltung von Eisen",
+          "Fusion von Wasserstoff zu Helium",
+          "α-Zerfall von Uran"
+        ],
+        "correct": 1
+      }
+    ],
+    "drawCount": 14
+  }
+};
+
+// ----------------- Konfiguration -----------------
+const SITE_PASSWORD = 'Becquerel';
+
+// ----------------- Storage -----------------
+const STORAGE_KEY = 'atomphysik_selbsttest';
+const PWD_KEY = STORAGE_KEY + '_pwd_ok';
+
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) { return {}; }
+}
+function saveStore(store) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); }
+  catch (e) { alert('Speicherung im Browser fehlgeschlagen.'); }
+}
+function getCurrentUser() {
+  return localStorage.getItem(STORAGE_KEY + '_user') || null;
+}
+function setCurrentUser(name) {
+  if (name) localStorage.setItem(STORAGE_KEY + '_user', name);
+  else localStorage.removeItem(STORAGE_KEY + '_user');
+}
+function isPasswordOK() {
+  return localStorage.getItem(PWD_KEY) === '1';
+}
+function setPasswordOK() { localStorage.setItem(PWD_KEY, '1'); }
+
+// ----------------- Shuffle / Pool -----------------
+// Fisher-Yates Shuffle (in place)
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Zieht n zufällige Elemente aus arr und permutiert die Antwortoptionen.
+// Speichert für jede Frage, an welcher Position die korrekte Antwort jetzt steht.
+function prepareTest(testKey) {
+  const test = TESTS[testKey];
+  const drawCount = Math.min(test.drawCount || test.questions.length, test.questions.length);
+  // 1) zufällige Teilmenge der Fragen
+  const indices = test.questions.map((_, i) => i);
+  shuffle(indices);
+  const pickedIdx = indices.slice(0, drawCount);
+  // 2) für jede gezogene Frage die Antwort-Reihenfolge permutieren
+  return pickedIdx.map(qi => {
+    const q = test.questions[qi];
+    const optIdx = q.options.map((_, i) => i);
+    shuffle(optIdx);
+    const newOptions = optIdx.map(i => q.options[i]);
+    const newCorrect = optIdx.indexOf(q.correct);
+    return {
+      q: q.q,
+      options: newOptions,
+      correct: newCorrect,
+      sourceIdx: qi,  // für mögliche Debugging-/Wiederhol-Zwecke
+    };
+  });
+}
+
+// ----------------- Grading -----------------
+// Notenschlüssel MV (schulüblich)
+function gradeFromPercent(p) {
+  if (p >= 96) return 1;
+  if (p >= 80) return 2;
+  if (p >= 60) return 3;
+  if (p >= 40) return 4;
+  if (p >= 25) return 5;
+  return 6;
+}
+function gradeWord(g) {
+  return ['—', 'sehr gut', 'gut', 'befriedigend', 'ausreichend', 'mangelhaft', 'ungenügend'][g];
+}
+
+// ----------------- Routing -----------------
+const app = document.getElementById('app');
+const userBar = document.getElementById('user-bar');
+let state = { view: 'login', testKey: null, currentQ: 0, answers: [] };
+
+function render() {
+  // 1) Passwort-Gate: vor allem anderen
+  if (!isPasswordOK()) {
+    userBar.innerHTML = '';
+    state.view = 'password';
+    return renderPasswordGate();
+  }
+
+  // 2) User-Bar aktualisieren
+  const user = getCurrentUser();
+  if (user) {
+    userBar.innerHTML =
+      `<span class="user-name">${escapeHTML(user)}</span>` +
+      `<button onclick="logout()">Abmelden</button>`;
+  } else {
+    userBar.innerHTML = '';
+  }
+
+  if (!user) { state.view = 'login'; }
+
+  if (state.view === 'login') return renderLogin();
+  if (state.view === 'dashboard') return renderDashboard();
+  if (state.view === 'test') return renderTest();
+  if (state.view === 'result') return renderResult();
+}
+
+// ----------------- Passwort-Gate -----------------
+function renderPasswordGate() {
+  app.innerHTML = `
+    <div class="card">
+      <h2>🔒 Zugang</h2>
+      <p>Bitte gib das Passwort ein, das du im Unterricht bekommen hast.</p>
+      <input type="password" id="pwd-input" placeholder="Passwort"
+             autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+             onkeydown="if(event.key==='Enter')checkPassword()">
+      <button class="primary" onclick="checkPassword()" style="width:100%">Weiter →</button>
+      <div id="pwd-error" class="pwd-error">Falsches Passwort. Bitte erneut versuchen.</div>
+    </div>
+  `;
+  setTimeout(() => document.getElementById('pwd-input').focus(), 50);
+}
+
+function checkPassword() {
+  const inp = document.getElementById('pwd-input');
+  const err = document.getElementById('pwd-error');
+  if (!inp) return;
+  const v = inp.value.trim();
+  if (v === SITE_PASSWORD) {
+    setPasswordOK();
+    state.view = getCurrentUser() ? 'dashboard' : 'login';
+    render();
+  } else {
+    err.style.display = 'block';
+    inp.value = '';
+    inp.focus();
+    // kurzes Schütteln zur Rückmeldung
+    inp.classList.remove('shake');
+    void inp.offsetWidth;  // reflow
+    inp.classList.add('shake');
+  }
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+// ----------------- Views -----------------
+function renderLogin() {
+  app.innerHTML = `
+    <div class="card">
+      <h2>Willkommen!</h2>
+      <p>Gib deinen Namen ein, um mit den Selbsttests zu starten. Deine Ergebnisse werden lokal in diesem Browser gespeichert.</p>
+      <input type="text" id="name-input" placeholder="z. B. Anna Müller" onkeydown="if(event.key==='Enter')login()">
+      <button class="primary" onclick="login()">Loslegen →</button>
+    </div>
+  `;
+  document.getElementById('name-input').focus();
+}
+
+function login() {
+  const name = document.getElementById('name-input').value.trim();
+  if (!name) { alert('Bitte gib einen Namen ein.'); return; }
+  setCurrentUser(name);
+  // Initialize user record
+  const store = loadStore();
+  if (!store[name]) {
+    store[name] = { history: [] };
+    saveStore(store);
+  }
+  state.view = 'dashboard';
+  render();
+}
+
+function logout() {
+  setCurrentUser(null);
+  state = { view: 'login', testKey: null, currentQ: 0, answers: [] };
+  render();
+}
+
+function renderDashboard() {
+  const user = getCurrentUser();
+  const store = loadStore();
+  const userData = store[user] || { history: [] };
+
+  const cards = Object.entries(TESTS).map(([key, t]) => {
+    const lastRun = [...userData.history].reverse().find(h => h.testKey === key);
+    const lastBlock = lastRun ?
+      `<div class="last-result">Letzter Versuch: <strong>${lastRun.correct}/${lastRun.total}</strong> (${lastRun.percent}%) → Note <strong>${lastRun.grade}</strong> · ${formatDate(lastRun.date)}</div>` : '';
+    const poolSize = t.questions.length;
+    const drawCount = Math.min(t.drawCount || poolSize, poolSize);
+    return `
+      <div class="card test-card" onclick="startTest('${key}')">
+        <h3 style="margin-top:0">${escapeHTML(t.title)}</h3>
+        <div style="color:var(--grey); font-size:14px;">${escapeHTML(t.subtitle)}</div>
+        <div class="meta">
+          <span class="badge">${drawCount} Fragen</span>
+          <span>aus Pool von ${poolSize}</span>
+          <span>≈ ${Math.round(drawCount * 0.4)} min</span>
+        </div>
+        ${lastBlock}
+      </div>
+    `;
+  }).join('');
+
+  let history = '';
+  if (userData.history.length > 0) {
+    const rows = [...userData.history].reverse().slice(0, 10).map(h => `
+      <div class="history-row">
+        <div>
+          <strong>${escapeHTML(TESTS[h.testKey]?.title || h.testKey)}</strong><br>
+          <small style="color:var(--grey)">${formatDate(h.date)} · ${h.correct}/${h.total} (${h.percent}%)</small>
+        </div>
+        <div class="history-grade">${h.grade}</div>
+      </div>
+    `).join('');
+    history = `
+      <div class="card">
+        <h3 style="margin-top:0">Deine letzten Ergebnisse</h3>
+        ${rows}
+      </div>
+    `;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      <h2 style="margin-top:0">Hallo, ${escapeHTML(user)}! 👋</h2>
+      <p>Wähle einen Selbsttest. Du kannst jeden Test mehrfach wiederholen.</p>
+      <p style="font-size:13px; color:var(--grey); margin-top:8px;">
+        🎲 <strong>Bei jedem Start</strong> werden die Fragen neu zufällig aus dem Pool gezogen, und auch die Reihenfolge der Antwortmöglichkeiten wird gemischt — Auswendiglernen der Klick-Reihenfolge bringt also nichts.
+      </p>
+    </div>
+    ${cards}
+    ${history}
+  `;
+}
+
+function startTest(key) {
+  state.view = 'test';
+  state.testKey = key;
+  state.currentQ = 0;
+  state.answers = [];
+  state.questions = prepareTest(key);  // einmal pro Versuch zufällig ziehen + Antworten permutieren
+  render();
+}
+
+function renderTest() {
+  const test = TESTS[state.testKey];
+  const idx = state.currentQ;
+  const total = state.questions.length;
+  const q = state.questions[idx];
+  const answered = state.answers[idx] !== undefined;
+  const progress = ((idx) / total) * 100;
+
+  const optionsHTML = q.options.map((opt, i) => {
+    let cls = 'option';
+    if (answered) {
+      cls += ' disabled';
+      if (i === q.correct) cls += ' correct';
+      else if (i === state.answers[idx]) cls += ' wrong';
+    }
+    const letter = ['a', 'b', 'c', 'd'][i];
+    return `
+      <button class="${cls}" ${answered ? 'disabled' : ''} onclick="answer(${i})">
+        <span class="letter">${letter}</span>
+        <span class="text">${escapeHTML(opt)}</span>
+      </button>
+    `;
+  }).join('');
+
+  let feedbackHTML = '';
+  if (answered) {
+    const correct = state.answers[idx] === q.correct;
+    feedbackHTML = `
+      <div class="feedback ${correct ? 'correct' : 'wrong'}">
+        ${correct ? '✓ Richtig!' : `✗ Falsch. Richtig wäre: <strong>${escapeHTML(q.options[q.correct])}</strong>`}
+      </div>
+      <button class="primary next-btn" onclick="nextQ()">
+        ${idx === total - 1 ? 'Test beenden →' : 'Nächste Frage →'}
+      </button>
+    `;
+  }
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="question-counter">Frage ${idx + 1} von ${total} · ${escapeHTML(test.title)}</div>
+      <div class="progress-bar"><div class="fill" style="width:${progress}%"></div></div>
+      <div class="question">${escapeHTML(q.q)}</div>
+      <div class="options">${optionsHTML}</div>
+      ${feedbackHTML}
+    </div>
+    <div style="text-align:center; margin-top:10px;">
+      <button class="secondary" onclick="if(confirm('Test wirklich abbrechen?')){state.view='dashboard';render();}">Abbrechen</button>
+    </div>
+  `;
+}
+
+function answer(idx) {
+  if (state.answers[state.currentQ] !== undefined) return;
+  state.answers[state.currentQ] = idx;
+  render();
+}
+
+function nextQ() {
+  state.currentQ += 1;
+  if (state.currentQ >= state.questions.length) {
+    finishTest();
+  } else {
+    render();
+  }
+}
+
+function finishTest() {
+  let correct = 0;
+  state.questions.forEach((q, i) => {
+    if (state.answers[i] === q.correct) correct++;
+  });
+  const total = state.questions.length;
+  const percent = Math.round((correct / total) * 100);
+  const grade = gradeFromPercent(percent);
+  const result = {
+    testKey: state.testKey,
+    date: new Date().toISOString(),
+    correct, total, percent, grade,
+    answers: state.answers,
+  };
+  // Save
+  const user = getCurrentUser();
+  const store = loadStore();
+  if (!store[user]) store[user] = { history: [] };
+  store[user].history.push(result);
+  saveStore(store);
+  // Show result
+  state.view = 'result';
+  state.lastResult = result;
+  render();
+}
+
+function renderResult() {
+  const r = state.lastResult;
+  const test = TESTS[r.testKey];
+  const gradeRows = [
+    [1, '96–100 %', 'sehr gut'],
+    [2, '80–95 %', 'gut'],
+    [3, '60–79 %', 'befriedigend'],
+    [4, '40–59 %', 'ausreichend'],
+    [5, '25–39 %', 'mangelhaft'],
+    [6, '0–24 %', 'ungenügend'],
+  ].map(([g, range, word]) => `
+    <tr class="${g === r.grade ? 'current' : ''}">
+      <td><strong>${g}</strong></td><td>${range}</td><td>${word}</td>
+    </tr>
+  `).join('');
+
+  let comment = '';
+  if (r.grade === 1) comment = 'Hervorragend! Du hast alle Inhalte sicher drauf. 🎉';
+  else if (r.grade === 2) comment = 'Sehr gute Leistung — du beherrschst den Stoff fast lückenlos.';
+  else if (r.grade === 3) comment = 'Solides Ergebnis. Schau dir die falschen Fragen nochmal im Reader an.';
+  else if (r.grade === 4) comment = 'Du hast die Grundlagen drauf — wiederhole die Inhalte des Blocks gezielt.';
+  else if (r.grade === 5) comment = 'Hier brauchst du noch Übung. Lies den Reader nochmal in Ruhe und versuche es erneut.';
+  else comment = 'Bitte arbeite den Block intensiv nochmal durch — komm dann gerne zurück.';
+
+  app.innerHTML = `
+    <div class="card">
+      <h2 style="margin-top:0">Ergebnis: ${escapeHTML(test.title)}</h2>
+      <div class="result-grade">${r.grade}</div>
+      <div class="result-percent">${r.correct}/${r.total} richtig · ${r.percent} %</div>
+      <div class="result-points">Note ${r.grade} (${gradeWord(r.grade)})</div>
+      <p style="text-align:center;font-style:italic;color:var(--grey);">${comment}</p>
+      <h3>Notenschlüssel (MV-Standard)</h3>
+      <table class="grade-table">
+        <tr><th>Note</th><th>Prozent</th><th>Bedeutung</th></tr>
+        ${gradeRows}
+      </table>
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="primary" onclick="state.view='dashboard';render();">Zur Übersicht</button>
+        <button class="secondary" onclick="startTest(state.testKey);">Test wiederholen</button>
+      </div>
+    </div>
+  `;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${dd}.${mm}.${yy}, ${hh}:${mi}`;
+}
+
+// ----------------- Init -----------------
+const user = getCurrentUser();
+state.view = user ? 'dashboard' : 'login';
+render();
+</script>
+
+</body>
+</html>
